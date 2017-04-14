@@ -1,39 +1,16 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
 
-<html>
+{% block content %}
 
-    <head>
-        <title>Bloggin'</title>
-    </head>
+{% for post in postsT %}
+    <div class = "blogpost">
+        <a href = "/blog/{{(post.key().id())}}">
+            <div class = "blogpost-subject">{{post.subject}}</div>
+        </a>
+        <pre class = "blogpost-content">{{post.content}}</pre>
+    </div>
 
-    <body>
-        <h1>Bloggin'</h1>
+    <hr>
+{% endfor %}
 
-        <form method="post">
-            <label>
-                <div>Subject</div>
-                <input type="text" name="subject" value="{{subjectT}}">
-            </label>
-
-            <label>
-                <div>Content</div>
-                <textarea name="content">{{contentT}}</textarea>
-            </label>
-
-            <div class="error">{{errorT}}</div>
-
-            <input type="submit">
-        </form>
-
-        <hr>
-
-        {% for post in postsT %}
-            <div class = "post">
-                <div class = "post-subject">{{post.subject}}</div>
-                <pre class = "post-content">{{post.content}}</pre>
-            </div>
-        {% endfor %}
-
-    </body>
-
-</html>
+{% endblock %}

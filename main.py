@@ -26,15 +26,23 @@ class Post(db.Model):
 
 class FrontPage(Handler):
 
-    def render_front(self, subject="", content="", error=""):
+    def get(self):
+        self.redirect('/blog')
 
-        posts = db.GqlQuery("SELECT * FROM Post ORDER BY created DESC LIMIT 10")
+class BlogPage(Handler):
+
+    def get(self):
+        latest_five_posts = db.GqlQuery("SELECT * FROM Post ORDER BY created DESC LIMIT 5")
 
         self.render("front.html",
+                    postsT = latest_five_posts)
+
+class NewPost(Handler):
+    def render_front(self, subject="", content="", error=""):
+        self.render("newpost.html",
                     subjectT = subject,
                     contentT = content,
-                    errorT = error,
-                    postsT = posts)
+                    errorT = error)
 
     def get(self):
         self.render_front() #draws blank form
@@ -44,15 +52,23 @@ class FrontPage(Handler):
         content = self.request.get("content")
 
         if subject and content:
-            a = Post(subject=subject, content=content)
-            a.put()
+            b = Post(subject=subject, content=content)
+            b.put()
 
-            self.redirect('/')
+            self.redirect('/blog/' + str(b.key().id()))
 
         else:
-            error = "We need both a title and some artwork..."
+            error = "We need both a subject and some ruminations in the content box..."
             self.render_front(subject, content, error)
 
+class ViewPostHandler(Handler):
+    def get(self, id):
+        self.render("confirmpost.html",
+                    newestpostT = Post.get_by_id(int(id)))
+
 app = webapp2.WSGIApplication([
-        ('/', FrontPage)
+        ('/', FrontPage),
+        ('/blog', BlogPage),
+        ('/newpost', NewPost),
+        webapp2.Route('/blog/<id:\d+>', ViewPostHandler)
         ], debug = True)
